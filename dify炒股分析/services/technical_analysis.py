@@ -137,27 +137,50 @@ class TechnicalAnalysis:
         """计算MACD指标"""
         try:
             close_prices = df['close'].values
-            
+
             if len(close_prices) >= max(self.macd_fast, self.macd_slow) + self.macd_signal:
-                macd, macd_signal, macd_hist = talib.MACD(
-                    close_prices,
-                    fastperiod=self.macd_fast,
-                    slowperiod=self.macd_slow,
-                    signalperiod=self.macd_signal
-                )
-                
-                return {
-                    'macd': float(macd[-1]) if not np.isnan(macd[-1]) else None,
-                    'macd_signal': float(macd_signal[-1]) if not np.isnan(macd_signal[-1]) else None,
-                    'macd_histogram': float(macd_hist[-1]) if not np.isnan(macd_hist[-1]) else None
-                }
+                if HAS_TALIB:
+                    macd, macd_signal, macd_hist = talib.MACD(
+                        close_prices,
+                        fastperiod=self.macd_fast,
+                        slowperiod=self.macd_slow,
+                        signalperiod=self.macd_signal
+                    )
+
+                    return {
+                        'macd': float(macd[-1]) if not np.isnan(macd[-1]) else None,
+                        'macd_signal': float(macd_signal[-1]) if not np.isnan(macd_signal[-1]) else None,
+                        'macd_histogram': float(macd_hist[-1]) if not np.isnan(macd_hist[-1]) else None
+                    }
+                else:
+                    # 使用pandas实现MACD
+                    close_series = pd.Series(close_prices)
+
+                    # 计算EMA
+                    ema_fast = close_series.ewm(span=self.macd_fast).mean()
+                    ema_slow = close_series.ewm(span=self.macd_slow).mean()
+
+                    # MACD线 = 快线EMA - 慢线EMA
+                    macd_line = ema_fast - ema_slow
+
+                    # 信号线 = MACD线的EMA
+                    signal_line = macd_line.ewm(span=self.macd_signal).mean()
+
+                    # 柱状图 = MACD线 - 信号线
+                    histogram = macd_line - signal_line
+
+                    return {
+                        'macd': float(macd_line.iloc[-1]) if not pd.isna(macd_line.iloc[-1]) else None,
+                        'macd_signal': float(signal_line.iloc[-1]) if not pd.isna(signal_line.iloc[-1]) else None,
+                        'macd_histogram': float(histogram.iloc[-1]) if not pd.isna(histogram.iloc[-1]) else None
+                    }
             else:
                 return {
                     'macd': None,
                     'macd_signal': None,
                     'macd_histogram': None
                 }
-                
+
         except Exception as e:
             logger.error(f"计算MACD失败: {str(e)}")
             return {
@@ -172,31 +195,77 @@ class TechnicalAnalysis:
             high_prices = df['high'].values
             low_prices = df['low'].values
             close_prices = df['close'].values
-            
+
             if len(close_prices) >= self.kdj_period:
-                # 计算KDJ
-                k, d = talib.STOCH(
-                    high_prices, low_prices, close_prices,
-                    fastk_period=self.kdj_period,
-                    slowk_period=3,
-                    slowd_period=3
-                )
-                
-                # J值计算：J = 3K - 2D
-                j = 3 * k - 2 * d
-                
-                return {
-                    'kdj_k': float(k[-1]) if not np.isnan(k[-1]) else None,
-                    'kdj_d': float(d[-1]) if not np.isnan(d[-1]) else None,
-                    'kdj_j': float(j[-1]) if not np.isnan(j[-1]) else None
-                }
+                if HAS_TALIB:
+                    # 计算KDJ
+                    k, d = talib.STOCH(
+                        high_prices, low_prices, close_prices,
+                        fastk_period=self.kdj_period,
+                        slowk_period=3,
+                        slowd_period=3
+                    )
+
+                    # J值计算：J = 3K - 2D
+                    j = 3 * k - 2 * d
+
+                    return {
+                        'kdj_k': float(k[-1]) if not np.isnan(k[-1]) else None,
+                        'kdj_d': float(d[-1]) if not np.isnan(d[-1]) else None,
+                        'kdj_j': float(j[-1]) if not np.isnan(j[-1]) else None
+                    }
+                else:
+                    # 使用pandas实现KDJ
+                    high_series = pd.Series(high_prices)
+                    low_series = pd.Series(low_prices)
+                    close_series = pd.Series(close_prices)
+
+                    # 计算RSV (Raw Stochastic Value)
+                    lowest_low = low_series.rolling(window=self.kdj_period).min()
+                    highest_high = high_series.rolling(window=self.kdj_period).max()
+                    rsv = (close_series - lowest_low) / (highest_high - lowest_low) * 100
+
+                    # 计算K值：K = 2/3 * 前一日K值 + 1/3 * 当日RSV
+                    k_values = []
+                    k_prev = 50  # K值初始值
+                    for rsv_val in rsv:
+                        if pd.isna(rsv_val):
+                            k_values.append(np.nan)
+                        else:
+                            k_curr = (2/3) * k_prev + (1/3) * rsv_val
+                            k_values.append(k_curr)
+                            k_prev = k_curr
+
+                    k_series = pd.Series(k_values)
+
+                    # 计算D值：D = 2/3 * 前一日D值 + 1/3 * 当日K值
+                    d_values = []
+                    d_prev = 50  # D值初始值
+                    for k_val in k_series:
+                        if pd.isna(k_val):
+                            d_values.append(np.nan)
+                        else:
+                            d_curr = (2/3) * d_prev + (1/3) * k_val
+                            d_values.append(d_curr)
+                            d_prev = d_curr
+
+                    d_series = pd.Series(d_values)
+
+                    # 计算J值：J = 3K - 2D
+                    j_series = 3 * k_series - 2 * d_series
+
+                    return {
+                        'kdj_k': float(k_series.iloc[-1]) if not pd.isna(k_series.iloc[-1]) else None,
+                        'kdj_d': float(d_series.iloc[-1]) if not pd.isna(d_series.iloc[-1]) else None,
+                        'kdj_j': float(j_series.iloc[-1]) if not pd.isna(j_series.iloc[-1]) else None
+                    }
             else:
                 return {
                     'kdj_k': None,
                     'kdj_d': None,
                     'kdj_j': None
                 }
-                
+
         except Exception as e:
             logger.error(f"计算KDJ失败: {str(e)}")
             return {
@@ -209,15 +278,38 @@ class TechnicalAnalysis:
         """计算RSI指标"""
         try:
             close_prices = df['close'].values
-            
+
             if len(close_prices) >= self.rsi_period + 1:
-                rsi = talib.RSI(close_prices, timeperiod=self.rsi_period)
-                return {
-                    'rsi': float(rsi[-1]) if not np.isnan(rsi[-1]) else None
-                }
+                if HAS_TALIB:
+                    rsi = talib.RSI(close_prices, timeperiod=self.rsi_period)
+                    return {
+                        'rsi': float(rsi[-1]) if not np.isnan(rsi[-1]) else None
+                    }
+                else:
+                    # 使用pandas实现RSI
+                    close_series = pd.Series(close_prices)
+
+                    # 计算价格变化
+                    delta = close_series.diff()
+
+                    # 分离上涨和下跌
+                    gain = delta.where(delta > 0, 0)
+                    loss = -delta.where(delta < 0, 0)
+
+                    # 计算平均收益和平均损失
+                    avg_gain = gain.rolling(window=self.rsi_period).mean()
+                    avg_loss = loss.rolling(window=self.rsi_period).mean()
+
+                    # 计算RS和RSI
+                    rs = avg_gain / avg_loss
+                    rsi = 100 - (100 / (1 + rs))
+
+                    return {
+                        'rsi': float(rsi.iloc[-1]) if not pd.isna(rsi.iloc[-1]) else None
+                    }
             else:
                 return {'rsi': None}
-                
+
         except Exception as e:
             logger.error(f"计算RSI失败: {str(e)}")
             return {'rsi': None}
@@ -226,27 +318,47 @@ class TechnicalAnalysis:
         """计算布林带"""
         try:
             close_prices = df['close'].values
-            
+
             if len(close_prices) >= self.bollinger_period:
-                upper, middle, lower = talib.BBANDS(
-                    close_prices,
-                    timeperiod=self.bollinger_period,
-                    nbdevup=self.bollinger_std,
-                    nbdevdn=self.bollinger_std
-                )
-                
-                return {
-                    'bollinger_upper': float(upper[-1]) if not np.isnan(upper[-1]) else None,
-                    'bollinger_middle': float(middle[-1]) if not np.isnan(middle[-1]) else None,
-                    'bollinger_lower': float(lower[-1]) if not np.isnan(lower[-1]) else None
-                }
+                if HAS_TALIB:
+                    upper, middle, lower = talib.BBANDS(
+                        close_prices,
+                        timeperiod=self.bollinger_period,
+                        nbdevup=self.bollinger_std,
+                        nbdevdn=self.bollinger_std
+                    )
+
+                    return {
+                        'bollinger_upper': float(upper[-1]) if not np.isnan(upper[-1]) else None,
+                        'bollinger_middle': float(middle[-1]) if not np.isnan(middle[-1]) else None,
+                        'bollinger_lower': float(lower[-1]) if not np.isnan(lower[-1]) else None
+                    }
+                else:
+                    # 使用pandas实现布林带
+                    close_series = pd.Series(close_prices)
+
+                    # 中轨：移动平均线
+                    middle = close_series.rolling(window=self.bollinger_period).mean()
+
+                    # 标准差
+                    std = close_series.rolling(window=self.bollinger_period).std()
+
+                    # 上轨和下轨
+                    upper = middle + (std * self.bollinger_std)
+                    lower = middle - (std * self.bollinger_std)
+
+                    return {
+                        'bollinger_upper': float(upper.iloc[-1]) if not pd.isna(upper.iloc[-1]) else None,
+                        'bollinger_middle': float(middle.iloc[-1]) if not pd.isna(middle.iloc[-1]) else None,
+                        'bollinger_lower': float(lower.iloc[-1]) if not pd.isna(lower.iloc[-1]) else None
+                    }
             else:
                 return {
                     'bollinger_upper': None,
                     'bollinger_middle': None,
                     'bollinger_lower': None
                 }
-                
+
         except Exception as e:
             logger.error(f"计算布林带失败: {str(e)}")
             return {

@@ -33,10 +33,24 @@ class Settings(BaseSettings):
     
     # 数据源配置
     AKSHARE_TIMEOUT: int = 30
-    MAX_RETRY_ATTEMPTS: int = 3  # 增加重试次数以提高成功率
+    MAX_RETRY_ATTEMPTS: int = 5  # 增加重试次数以提高成功率
     ENABLE_REAL_DATA: bool = True   # 启用真实数据获取
-    USE_MOCK_DATA: bool = True      # 真实数据获取失败时使用模拟数据作为备用
+    USE_MOCK_DATA: bool = False     # 禁用模拟数据，只返回真实数据
     OFFLINE_MODE: bool = False      # 完全离线模式
+
+    # 重试机制配置
+    RETRY_BASE_DELAY: float = 1.0      # 基础延迟时间（秒）
+    RETRY_MAX_DELAY: float = 60.0      # 最大延迟时间（秒）
+    RETRY_BACKOFF_FACTOR: float = 2.0  # 退避因子
+    RETRY_JITTER: bool = True          # 是否添加随机抖动
+
+    # 网络检查配置
+    NETWORK_CHECK_TIMEOUT: int = 5     # 网络检查超时时间
+    NETWORK_CHECK_INTERVAL: int = 300  # 网络检查间隔（秒）
+
+    # 请求频率控制
+    REQUEST_DELAY: float = 2.0         # 请求间隔（秒）
+    BURST_LIMIT: int = 10              # 突发请求限制
     
     # 技术指标配置
     MA_PERIODS: List[int] = [5, 10, 20, 60]

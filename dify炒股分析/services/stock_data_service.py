@@ -8,22 +8,30 @@ from typing import Optional, Dict, Any, List
 import asyncio
 import logging
 from config import settings, ERROR_MESSAGES
+from utils.retry_handler import (
+    default_retry_handler, aggressive_retry_handler,
+    retry, RetryableError, NonRetryableError
+)
+from utils.network_utils import check_network_connectivity
 
 logger = logging.getLogger(__name__)
 
 
 class StockDataService:
     """股票数据获取服务类"""
-    
+
     def __init__(self):
         self.timeout = settings.AKSHARE_TIMEOUT
         self.max_retries = settings.MAX_RETRY_ATTEMPTS
         # 根据官方文档建议，增加请求间隔
         self.request_delay = 2  # 秒
+        self.network_check_interval = 300  # 网络检查间隔（秒）
+        self.last_network_check = 0
+        self.network_available = True
         
     async def get_stock_data(self, stock_code: str, market_type: str, days: int = None) -> Dict[str, Any]:
         """
-        获取股票数据
+        获取股票数据 - 增强版错误处理和重试机制
 
         Args:
             stock_code: 股票代码
@@ -41,6 +49,13 @@ class StockDataService:
             logger.info(f"使用模拟数据模式: {stock_code}")
             return self._get_mock_data(stock_code, market_type)
 
+        # 检查网络状态
+        if not await self._check_network_status():
+            logger.warning(f"网络不可用，使用模拟数据: {stock_code}")
+            if settings.USE_MOCK_DATA:
+                return self._get_mock_data(stock_code, market_type)
+            raise RetryableError("网络连接不可用，无法获取股票数据")
+
         try:
             # 根据市场类型选择不同的数据获取方法
             if market_type == "A":
@@ -52,15 +67,54 @@ class StockDataService:
             elif market_type == "ETF":
                 return await self._get_etf_data(stock_code, days)
             else:
-                raise ValueError(f"不支持的市场类型: {market_type}")
+                raise NonRetryableError(f"不支持的市场类型: {market_type}")
 
-        except Exception as e:
-            logger.error(f"获取股票数据失败: {stock_code}, 市场: {market_type}, 错误: {str(e)}")
+        except NonRetryableError:
+            # 不可重试错误直接抛出
+            raise
+        except RetryableError as e:
+            logger.error(f"获取股票数据失败（可重试）: {stock_code}, 市场: {market_type}, 错误: {str(e)}")
             # 如果启用了模拟数据，则返回模拟数据
             if settings.USE_MOCK_DATA:
                 logger.info(f"切换到模拟数据: {stock_code}")
                 return self._get_mock_data(stock_code, market_type)
             raise
+        except Exception as e:
+            logger.error(f"获取股票数据失败（未知错误）: {stock_code}, 市场: {market_type}, 错误: {str(e)}")
+            # 如果启用了模拟数据，则返回模拟数据
+            if settings.USE_MOCK_DATA:
+                logger.info(f"切换到模拟数据: {stock_code}")
+                return self._get_mock_data(stock_code, market_type)
+            raise RetryableError(f"未知错误: {str(e)}") from e
+
+    async def _check_network_status(self) -> bool:
+        """检查网络状态"""
+        import time
+        current_time = time.time()
+
+        # 如果距离上次检查时间不足间隔，返回缓存结果
+        if current_time - self.last_network_check < self.network_check_interval:
+            return self.network_available
+
+        # 执行网络检查
+        try:
+            self.network_available = check_network_connectivity([
+                'https://www.baidu.com',
+                'http://quote.eastmoney.com',
+                'https://xueqiu.com'
+            ])
+            self.last_network_check = current_time
+
+            if self.network_available:
+                logger.info("网络连接正常")
+            else:
+                logger.warning("网络连接异常")
+
+        except Exception as e:
+            logger.error(f"网络检查失败: {str(e)}")
+            self.network_available = False
+
+        return self.network_available
     
     async def _get_a_stock_data(self, stock_code: str, days: int) -> Dict[str, Any]:
         """获取A股数据 - 使用官方推荐的稳定接口"""
@@ -92,12 +146,13 @@ class StockDataService:
 
             # 方法2: 备用接口
             logger.info(f"尝试备用数据源: {stock_code}")
-            return self._get_mock_data(stock_code)
+            # 尝试其他真实数据源
+            raise RetryableError("所有数据源都失败")
 
         except Exception as e:
             logger.error(f"获取A股数据失败: {stock_code}, 错误: {str(e)}")
-            # 返回模拟数据以便测试
-            return self._get_mock_data(stock_code)
+            # 抛出错误而不是返回模拟数据
+            raise RetryableError(f"获取A股数据失败: {str(e)}")
     
     async def _get_hk_stock_data(self, stock_code: str, days: int) -> Dict[str, Any]:
         """获取港股数据"""
@@ -171,46 +226,44 @@ class StockDataService:
             logger.error(f"获取ETF数据失败: {stock_code}, 错误: {str(e)}")
             raise
     
-    async def _retry_request(self, func, max_retries: int = None):
-        """重试请求机制 - 根据官方文档优化"""
-        if max_retries is None:
-            max_retries = self.max_retries
+    @aggressive_retry_handler.retry_async
+    async def _retry_request(self, func):
+        """
+        智能重试请求机制
+        使用高级重试处理器，支持指数退避、网络检测等功能
+        """
+        try:
+            # 检查网络连接
+            if not check_network_connectivity():
+                raise RetryableError("网络连接不可用")
 
-        last_exception = None
+            # 添加请求前延迟，降低访问频率
+            await asyncio.sleep(self.request_delay)
 
-        for attempt in range(max_retries):
-            try:
-                # 添加请求前延迟，降低访问频率
-                if attempt > 0:
-                    await asyncio.sleep(self.request_delay)
+            # 在异步环境中运行同步函数
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(None, func)
 
-                # 在异步环境中运行同步函数
-                loop = asyncio.get_event_loop()
-                result = await loop.run_in_executor(None, func)
+            # 请求成功后稍作延迟，避免频繁请求
+            await asyncio.sleep(0.5)
 
-                # 请求成功后也稍作延迟
-                await asyncio.sleep(0.5)
-                return result
+            return result
 
-            except Exception as e:
-                last_exception = e
-                error_msg = str(e).lower()
+        except Exception as e:
+            # 判断是否为数据相关错误（不可重试）
+            error_msg = str(e).lower()
+            non_retryable_keywords = [
+                'invalid symbol', '无效代码', 'not found', '未找到',
+                'permission denied', '权限', 'unauthorized', '未授权',
+                'invalid parameter', '参数错误'
+            ]
 
-                # 根据错误类型调整重试策略
-                if "timeout" in error_msg or "connection" in error_msg:
-                    wait_time = min(5 + (attempt * 2), 15)  # 网络问题时等待更久
-                elif "ssl" in error_msg:
-                    wait_time = min(3 + (attempt * 3), 20)  # SSL问题时等待更久
-                else:
-                    wait_time = 2 ** attempt  # 其他问题指数退避
+            if any(keyword in error_msg for keyword in non_retryable_keywords):
+                raise NonRetryableError(f"数据获取错误（不可重试）: {str(e)}") from e
 
-                if attempt < max_retries - 1:
-                    logger.warning(f"请求失败，{wait_time}秒后重试 (尝试 {attempt + 1}/{max_retries}): {str(e)}")
-                    await asyncio.sleep(wait_time)
-                else:
-                    logger.error(f"请求最终失败，已重试 {max_retries} 次: {str(e)}")
-
-        raise last_exception
+            # 其他错误标记为可重试
+            logger.warning(f"数据获取失败，将重试: {str(e)}")
+            raise RetryableError(f"数据获取失败: {str(e)}") from e
 
     async def _get_backup_data(self, stock_code: str, days: int) -> pd.DataFrame:
         """备用数据获取方法"""
@@ -397,8 +450,8 @@ class StockDataService:
 
         except Exception as e:
             logger.error(f"简化处理A股数据失败: {stock_code}, 错误: {str(e)}")
-            # 返回模拟数据
-            return self._get_mock_data(stock_code)
+            # 抛出错误而不是返回模拟数据
+            raise RetryableError(f"处理A股数据失败: {str(e)}")
     
     def _process_hk_stock_data(self, stock_code: str, hist_data: pd.DataFrame) -> Dict[str, Any]:
         """处理港股数据"""

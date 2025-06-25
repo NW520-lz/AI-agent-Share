@@ -97,32 +97,6 @@ workflow:
     - data:
         isInIteration: false
         isInLoop: false
-        sourceType: if-else
-        targetType: variable-aggregator
-      id: 1749176453865-false-1749176594332-target
-      selected: false
-      source: '1749176453865'
-      sourceHandle: 'false'
-      target: '1749176594332'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: variable-aggregator
-        targetType: http-request
-      id: 1749176594332-source-1749176620821-target
-      selected: false
-      source: '1749176594332'
-      sourceHandle: source
-      target: '1749176620821'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
         sourceType: http-request
         targetType: code
       id: 1749176620821-source-1749176917139-target
@@ -130,32 +104,6 @@ workflow:
       source: '1749176620821'
       sourceHandle: source
       target: '1749176917139'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: code
-        targetType: if-else
-      id: 1749176917139-source-1749177019596-target
-      selected: false
-      source: '1749176917139'
-      sourceHandle: source
-      target: '1749177019596'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1749177019596-true-1749177149645-target
-      selected: false
-      source: '1749177019596'
-      sourceHandle: 'true'
-      target: '1749177149645'
       targetHandle: target
       type: custom
       zIndex: 0
@@ -203,19 +151,6 @@ workflow:
         isInLoop: false
         sourceType: llm
         targetType: answer
-      id: 1749177149645-source-1749177325682-target
-      selected: false
-      source: '1749177149645'
-      sourceHandle: source
-      target: '1749177325682'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: answer
       id: 1749177151713-source-1749177549359-target
       source: '1749177151713'
       sourceHandle: source
@@ -247,6 +182,50 @@ workflow:
       targetHandle: target
       type: custom
       zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1749176453865-false-1749176620821-target
+      source: '1749176453865'
+      sourceHandle: 'false'
+      target: '1749176620821'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1749176917139-source-1749177019596-target
+      source: '1749176917139'
+      sourceHandle: source
+      target: '1749177019596'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 17508640059890-source-1749177325682-target
+      source: '17508640059890'
+      sourceHandle: source
+      target: '1749177325682'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1749177019596-true-17508640059890-target
+      source: '1749177019596'
+      sourceHandle: 'true'
+      target: '17508640059890'
+      targetHandle: target
+      type: custom
+      zIndex: 0
     nodes:
     - data:
         desc: ''
@@ -273,12 +252,12 @@ workflow:
       height: 115
       id: '1749172200501'
       position:
-        x: 38
-        y: 69
+        x: -479.107034597897
+        y: 117.75083154458287
       positionAbsolute:
-        x: 38
-        y: 69
-      selected: true
+        x: -479.107034597897
+        y: 117.75083154458287
+      selected: false
       sourcePosition: right
       targetPosition: left
       type: custom
@@ -303,11 +282,11 @@ workflow:
       height: 125
       id: '1749176453865'
       position:
-        x: 341
-        y: 69
+        x: -99.49858502783823
+        y: 108.78642703821393
       positionAbsolute:
-        x: 341
-        y: 69
+        x: -99.49858502783823
+        y: 108.78642703821393
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -323,33 +302,11 @@ workflow:
       height: 101
       id: '1749176531422'
       position:
-        x: 642
-        y: 69
+        x: 349.4950107325027
+        y: 100.33982027866045
       positionAbsolute:
-        x: 642
-        y: 69
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        desc: ''
-        output_type: string
-        selected: false
-        title: 变量聚合器
-        type: variable-aggregator
-        variables:
-        - - '1749172200501'
-          - stockcode2
-      height: 108
-      id: '1749176594332'
-      position:
-        x: 38
-        y: 278.00000000000006
-      positionAbsolute:
-        x: 38
-        y: 278.00000000000006
+        x: 349.4950107325027
+        y: 100.33982027866045
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -364,8 +321,8 @@ workflow:
           - id: key-value-368
             key: ''
             type: text
-            value: "{\n  \"stock_code\":\"{{#1749176594332.output#}}\",\n  \"market_type\"\
-              :\"{{#1749172200501.marketType#}}\"\n}"
+            value: "{\n  \"stock_code\":\"{{#1749172200501.stockcode2#}}\",\n  \"\
+              market_type\":\"{{#1749172200501.marketType#}}\"\n}"
           type: json
         desc: ''
         headers: 'Content-Type:application/json
@@ -379,20 +336,21 @@ workflow:
           retry_interval: 100
         selected: false
         timeout:
+          connect: 1
           max_connect_timeout: 0
           max_read_timeout: 0
           max_write_timeout: 0
         title: HTTP 请求
         type: http-request
-        url: http://10.7.139.26:8001/analyze-stock/
+        url: http://10.7.139.26:8001/analyze-stock-test/
         variables: []
       height: 135
       id: '1749176620821'
       position:
-        x: 341
+        x: 339.2588988734077
         y: 278.00000000000006
       positionAbsolute:
-        x: 341
+        x: 339.2588988734077
         y: 278.00000000000006
       selected: false
       sourcePosition: right
@@ -447,11 +405,11 @@ workflow:
       height: 53
       id: '1749176917139'
       position:
-        x: 642
-        y: 278.00000000000006
+        x: 632
+        y: 332
       positionAbsolute:
-        x: 642
-        y: 278.00000000000006
+        x: 632
+        y: 332
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -504,70 +462,6 @@ workflow:
       positionAbsolute:
         x: 940
         y: 278.00000000000006
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 244
-    - data:
-        context:
-          enabled: false
-          variable_selector: []
-        desc: ''
-        model:
-          completion_params: {}
-          mode: chat
-          name: qwen3-235b-a22b
-          provider: langgenius/tongyi/tongyi
-        prompt_template:
-        - id: cfaf8943-84e3-4850-8aba-978dc751bc0c
-          role: system
-          text: '分析A股{{#1749176594332.output#}}：
-
-            技术指标概要：
-
-            {{#1749176917139.technical_summary#}}
-
-            近14日交易数据：
-
-            {{#1749176917139.recent_data#}}
-
-
-            请提供：
-
-            1.趋势分析（包含支撑位和压力位）
-
-            2.成交量分析及其含义
-
-            3.风险评估（包含波动率分析）
-
-            4.短期和中期目标价位
-
-            5.关键技术位分析
-
-            6.具体交易建议（包含止损位）
-
-            请基于技术指标和A股市场特点进行分析，给出具体数据支
-
-            持。
-
-            7.根据{{#1749176917139.report#}}实时技术指标分析给出当前交易策略
-
-            '
-        selected: false
-        title: A股分析
-        type: llm
-        variables: []
-        vision:
-          enabled: false
-      height: 89
-      id: '1749177149645'
-      position:
-        x: 1243
-        y: 189.59296997821616
-      positionAbsolute:
-        x: 1243
-        y: 189.59296997821616
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -766,9 +660,9 @@ workflow:
       type: custom
       width: 244
     - data:
-        answer: '{{#1749176594332.output#}}
+        answer: '{{#1749172200501.stockcode2#}}
 
-          {{#1749177149645.text#}}'
+          {{#17508640059890.text#}}'
         desc: ''
         selected: false
         title: 直接回复 2
@@ -778,10 +672,10 @@ workflow:
       id: '1749177325682'
       position:
         x: 1546
-        y: 189.59296997821616
+        y: 171.99305822453175
       positionAbsolute:
         x: 1546
-        y: 189.59296997821616
+        y: 171.99305822453175
       selected: false
       sourcePosition: right
       targetPosition: left
@@ -847,7 +741,204 @@ workflow:
       targetPosition: left
       type: custom
       width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: qwen3-235b-a22b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 5cb1a691-ca71-452a-a29d-bed38460ae0d
+          role: system
+          text: '分析HK股{{#1749172200501.stockcode2#}}：
+
+            技术指标概要：
+
+            {{#1749176917139.technical_summary#}}
+
+            近14日交易数据：
+
+            {{#1749176917139.recent_data#}}
+
+
+            分析对象： [请填写股票代码和名称]
+
+            分析周期： [请选择：日线 / 周线 / 月线]
+
+            分析日期： [请填写当前日期]
+
+            分析要求：
+
+            请基于以下技术指标和A股市场特点，对指定股票进行全面技术分析，并提供具体、可执行的交易策略。请确保所有分析均有具体数据支持。
+
+            1. 核心趋势分析：
+
+            * 当前趋势判断： 明确指出当前处于上升、下降还是震荡趋势。
+
+            * 关键支撑位： 列出至少2个支撑位（例如：MA20、前期低点），并标注具体价格。
+
+            * 关键压力位： 列出至少2个压力位（例如：前期高点、整数关口），并标注具体价格。
+
+            2. 成交量与筹码分析：
+
+            * 量价关系分析： 分析近期成交量与价格走势的配合情况（如：价涨量增、价跌量缩等），并解读其市场含义。
+
+            * 关键位置放量/缩量分析： 分析在突破或跌破关键位时的成交量变化，判断其有效性。
+
+            * 筹码分布（如可获取）： 简述当前筹码集中区域及其对股价的支撑或压力作用。
+
+            3. 风险与波动性评估：
+
+            * 波动率分析： 使用布林带（Bollinger Bands）的宽度或ATR（真实波幅均值）指标，评估当前股价的波动性，并说明其对交易的影响。
+
+            * 技术指标风险提示： 分析RSI、KDJ等摆动指标是否存在超买/超卖或顶/底背离风险。
+
+            * 市场与板块风险： 结合A股大盘情绪和所在板块的轮动特点，评估潜在的系统性风险。
+
+            4. 目标价位预测：
+
+            * 短期目标价位（1-4周）： 结合近期压力位和斐波那契扩展位，给出具体价格区间。
+
+            * 中期目标价位（1-3个月）： 结合更高级别的压力位和形态学（如W底、头肩底）测量，给出具体价格区间。
+
+            5. 关键技术形态与位置：
+
+            * 多空分水岭： 确定一个关键价格或均线，作为短期/中期趋势转变的临界点。
+
+            * 当前所处形态： 识别当前是否处于某种经典技术形态中（如：箱体震荡、上升/下降通道、三角形整理等）。
+
+            6. 具体交易计划：
+
+            * 核心策略： 明确是“逢低买入”、“突破追高”还是“逢高卖出”。
+
+            * 理想入场区间： 给出具体的价格范围。
+
+            * 仓位管理建议： 建议首次建仓的资金比例。
+
+            * 止损位设置： 给出明确的止损价格，并说明设置该位置的理由（如：跌破关键支撑位）。
+
+            7. 依据实时报告的即时策略：
+
+            * 解读实时指标： 基于 提供的实时MACD、KDJ、RSI、成交量等数据。
+
+            * 更新交易策略： 根据实时数据，确认或修正上述交易计划，给出当前是“持有”、“买入”、“卖出”还是“观望”的即时建议。{{#...report#}}
+
+
+            【分析范例】
+
+            假设分析对象为某A股科技公司（股价30元附近），以下为基于上述优化提示词生成的分析报告：
+
+            分析对象： 某A股科技公司 （60XXXX）
+
+            分析周期： 日线
+
+            分析日期： 2023年10月27日
+
+            1. 核心趋势分析：
+
+            当前趋势判断： 短期处于明确的上升趋势中，中期仍处于大型箱体震荡的筑底阶段。股价已站上所有短期均线（MA5， MA10， MA20）之上，均线系统呈多头排列。
+
+            关键支撑位：
+
+            第一支撑位：28.50元 （20日均线MA20所在位置）。
+
+            强支撑位：27.00元 (前期震荡平台的上沿，突破后形成支撑)。
+
+            关键压力位：
+
+            第一压力位：31.80元 （今年7月份的前期高点）。
+
+            强压力位：33.50元 （大型箱体的上沿区域）。
+
+            2. 成交量与筹码分析：
+
+            量价关系分析： 近一个月呈现典型的“价涨量增，价跌量缩”的健康上涨形态。这表明上涨时有增量资金主动买入，而回调时卖盘惜售，市场看涨意愿较强。
+
+            关键位置放量分析： 在本周二（10月24日）向上突破27.00元平台时，成交量放大至前5日均量的2.5倍，属于“有效突破”，表明突破的可靠性较高。
+
+            筹码分布： 主要筹码集中在26.00-27.50元区域，这是当前股价的坚实支撑区。上方31.00元附近有少量套牢盘，构成短期压力。
+
+            3. 风险与波动性评估：
+
+            波动率分析： 布林带（Bollinger Bands）开口正在持续扩大，股价沿上轨运行，显示当前处于强势的单边上涨行情中，波动性正在加大。这适合趋势跟踪策略，但不宜在偏离上轨过远时追高。
+
+            技术指标风险提示：RSI（14）值为78，已进入超买区域;KDJ指标J值连续3日高于100，出现超买钝化。这预示着短期有技术性回调或转为高位震荡的需求，追高风险较大。
+
+            市场与板块风险： 当前A股大盘处于底部反弹阶段，情绪尚可。但该股所属的科技板块近期轮动较快，需警惕板块热点切换导致资金流出的风险。
+
+            4. 目标价位预测：
+
+            短期目标价位（1-4周）： 31.80元。若能放量突破，下一目标看至33.50元。
+
+            中期目标价位（1-3个月）： 33.50元 - 35.00元。此目标需要大盘环境持续配合，并且成功突破箱体上沿。
+
+            5. 关键技术形态与位置：
+
+            多空分水岭： 28.50元（20日均线）。只要股价保持在该线上方，短期上升趋势不变。若有效跌破，则趋势可能转为震荡或回调。
+
+            当前所处形态： 股价目前处于一个小型“上升通道”内，并且正在挑战一个持续半年的“大型箱体”的上半区。
+
+            6. 具体交易计划：
+
+            核心策略： 采取“回调低吸，不追高”的策略。
+
+            理想入场区间： 29.00元 - 29.50元区间（等待股价向10日均线回踩时）。
+
+            仓位管理建议： 首次建仓不超过总资金的20%。
+
+            止损位设置： 严格设置在28.30元。此位置略低于20日均线，一旦有效跌破，意味着短期上升趋势被破坏，应及时离场规避风险。
+
+            7. 依据 {{#1749176917139.report#}} 的即时策略：
+
+            解读实时指标（假设报告显示）：
+
+            当前价格: 30.80元, 涨幅: +4.5%
+
+            实时成交量: 已达到昨日全天80%
+
+            MACD: 红柱继续伸长，DIF值加速上行
+
+            RSI(14): 82 (超买区域深化)
+
+            KDJ(9,3,3): J值持续在100上方运行
+
+            更新交易策略：
+
+            当前状态： 市场情绪亢奋，股价处于强势拉升的加速阶段，但短期超买信号非常明确。
+
+            即时建议：
+
+            已持仓者： “持有并上移止盈位”。可将移动止盈位设置在30.00元或5日均线位置，只要不破就继续持有，让利润奔跑。
+
+            未持仓者： “保持观望，放弃追高”。当前价格已严重偏离短期均线，风险收益比不佳。耐心等待下一次回调至“理想入场区间”的机会，或等待股价放量突破31.80元并回踩确认后再做决策。
+
+            7.根据{{#1749176917139.report#}}实时技术指标分析给出当前交易策略
+
+            '
+        selected: false
+        title: 'A股分析 '
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '17508640059890'
+      position:
+        x: 1204.2733396113288
+        y: 171.99305822453175
+      positionAbsolute:
+        x: 1204.2733396113288
+        y: 171.99305822453175
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
     viewport:
-      x: -502.38242456360035
-      y: 147.29878859454408
-      zoom: 0.6597539553864475
+      x: 215.6556451915111
+      y: 302.0732371355591
+      zoom: 0.5743491774985174

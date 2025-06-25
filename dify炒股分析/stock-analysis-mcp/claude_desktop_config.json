@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "stock-analysis": {
+      "command": "python",
+      "args": [
+        "d:/AI agent/dify智能体/作品应用/dify炒股分析/stock-analysis-mcp/src/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "d:/AI agent/dify智能体/作品应用/dify炒股分析/stock-analysis-mcp/src"
+      }
+    }
+  }
+}

@@ -1,0 +1,853 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 股票分析系统
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/tongyi:0.0.25@2b6f549753c8fe1b8d0bda620eb0611b549d6d809da691baf0692ee75f6c507f
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: ''
+    id: c5450db2-7eed-4bc5-bc33-604cc84307bd
+    name: apikey
+    selector:
+    - env
+    - apikey
+    value: xue1234
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: if-else
+      id: 1749172200501-source-1749176453865-target
+      selected: false
+      source: '1749172200501'
+      sourceHandle: source
+      target: '1749176453865'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1749176453865-true-1749176531422-target
+      selected: false
+      source: '1749176453865'
+      sourceHandle: 'true'
+      target: '1749176531422'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: variable-aggregator
+      id: 1749176453865-false-1749176594332-target
+      selected: false
+      source: '1749176453865'
+      sourceHandle: 'false'
+      target: '1749176594332'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: variable-aggregator
+        targetType: http-request
+      id: 1749176594332-source-1749176620821-target
+      selected: false
+      source: '1749176594332'
+      sourceHandle: source
+      target: '1749176620821'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1749176620821-source-1749176917139-target
+      selected: false
+      source: '1749176620821'
+      sourceHandle: source
+      target: '1749176917139'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1749176917139-source-1749177019596-target
+      selected: false
+      source: '1749176917139'
+      sourceHandle: source
+      target: '1749177019596'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1749177019596-true-1749177149645-target
+      selected: false
+      source: '1749177019596'
+      sourceHandle: 'true'
+      target: '1749177149645'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1749177019596-25d620ae-2213-47b1-93be-870176116b8f-1749177151713-target
+      selected: false
+      source: '1749177019596'
+      sourceHandle: 25d620ae-2213-47b1-93be-870176116b8f
+      target: '1749177151713'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1749177019596-1c1672cc-0675-47e5-ba1c-46aeb727b581-1749177154055-target
+      selected: false
+      source: '1749177019596'
+      sourceHandle: 1c1672cc-0675-47e5-ba1c-46aeb727b581
+      target: '1749177154055'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1749177019596-false-1749177156539-target
+      selected: false
+      source: '1749177019596'
+      sourceHandle: 'false'
+      target: '1749177156539'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1749177149645-source-1749177325682-target
+      selected: false
+      source: '1749177149645'
+      sourceHandle: source
+      target: '1749177325682'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1749177151713-source-1749177549359-target
+      source: '1749177151713'
+      sourceHandle: source
+      target: '1749177549359'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1749177154055-source-1749177564902-target
+      source: '1749177154055'
+      sourceHandle: source
+      target: '1749177564902'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1749177156539-source-1749177606767-target
+      source: '1749177156539'
+      sourceHandle: source
+      target: '1749177606767'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 手动输入股票代码
+          max_length: 48
+          options: []
+          required: false
+          type: text-input
+          variable: stockcode2
+        - label: 市场类型
+          max_length: 48
+          options:
+          - A
+          - HK
+          - US
+          - ETF
+          required: true
+          type: select
+          variable: marketType
+      height: 115
+      id: '1749172200501'
+      position:
+        x: 38
+        y: 69
+      positionAbsolute:
+        x: 38
+        y: 69
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: 2391bf47-a45a-46b2-90a9-bce3aa5b3a89
+            value: ''
+            varType: string
+            variable_selector:
+            - '1749172200501'
+            - stockcode2
+          id: 'true'
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 条件分支
+        type: if-else
+      height: 125
+      id: '1749176453865'
+      position:
+        x: 341
+        y: 69
+      positionAbsolute:
+        x: 341
+        y: 69
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: 股票代码不能为空，请重新输入！
+        desc: ''
+        selected: false
+        title: 错误回复
+        type: answer
+        variables: []
+      height: 101
+      id: '1749176531422'
+      position:
+        x: 642
+        y: 69
+      positionAbsolute:
+        x: 642
+        y: 69
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        output_type: string
+        selected: false
+        title: 变量聚合器
+        type: variable-aggregator
+        variables:
+        - - '1749172200501'
+          - stockcode2
+      height: 108
+      id: '1749176594332'
+      position:
+        x: 38
+        y: 278.00000000000006
+      positionAbsolute:
+        x: 38
+        y: 278.00000000000006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-368
+            key: ''
+            type: text
+            value: "{\n  \"stock_code\":\"{{#1749176594332.output#}}\",\n  \"market_type\"\
+              :\"{{#1749172200501.marketType#}}\"\n}"
+          type: json
+        desc: ''
+        headers: 'Content-Type:application/json
+
+          Authorization:bearer {{#env.apikey#}}'
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 3
+          retry_enabled: true
+          retry_interval: 100
+        selected: false
+        timeout:
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+        title: HTTP 请求
+        type: http-request
+        url: http://10.7.139.26:8001/analyze-stock/
+        variables: []
+      height: 135
+      id: '1749176620821'
+      position:
+        x: 341
+        y: 278.00000000000006
+      positionAbsolute:
+        x: 341
+        y: 278.00000000000006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        code: "import json\n\ndef main(arg1: str) -> dict:\n    print(arg1)\n    \n\
+          \    try:\n        data = json.loads(arg1)\n        \n        # 首先检查是否是成功响应\n\
+          \        if data.get(\"status\") != \"success\":\n            error_msg\
+          \ = data.get(\"message\", \"API请求失败\")\n            return {\n         \
+          \       \"error\": f\"API错误: {error_msg}\",\n                \"technical_summary\"\
+          : \"请求失败\",\n                \"recent_data\": \"无数据\",\n               \
+          \ \"report\": \"由于API请求失败，无法生成报告\"\n            }\n        \n        # 检查data字段是否存在\n\
+          \        response_data = data.get(\"data\")\n        if not response_data:\n\
+          \            return {\n                \"error\": \"响应数据为空\",\n        \
+          \        \"technical_summary\": \"数据缺失\",\n                \"recent_data\"\
+          : \"无数据\", \n                \"report\": \"响应中缺少数据字段\"\n            }\n\
+          \        \n        # 安全地提取各个字段，提供默认值\n        technical_summary = response_data.get(\"\
+          technical_summary\", {})\n        recent_data = response_data.get(\"recent_data\"\
+          , [])\n        report = response_data.get(\"report\", {})\n        \n  \
+          \      # 直接返回字典，不要转换为JSON字符串\n        return {\n            \"technical_summary\"\
+          : technical_summary,\n            \"recent_data\": recent_data,\n      \
+          \      \"report\": report\n        }\n        \n    except json.JSONDecodeError\
+          \ as e:\n        return {\n            \"error\": f\"JSON解析错误: {str(e)}\"\
+          ,\n            \"technical_summary\": \"解析失败\",\n            \"recent_data\"\
+          : \"无数据\",\n            \"report\": \"无法解析API响应\"\n        }\n    \n   \
+          \ except Exception as e:\n        return {\n            \"error\": f\"处理错误:\
+          \ {str(e)}\",\n            \"technical_summary\": \"处理失败\", \n         \
+          \   \"recent_data\": \"无数据\",\n            \"report\": \"数据处理过程中发生错误\"\n\
+          \        }"
+        code_language: python3
+        desc: ''
+        outputs:
+          recent_data:
+            children: null
+            type: array[object]
+          report:
+            children: null
+            type: object
+          technical_summary:
+            children: null
+            type: object
+        selected: false
+        title: 代码执行
+        type: code
+        variables:
+        - value_selector:
+          - '1749176620821'
+          - body
+          variable: arg1
+      height: 53
+      id: '1749176917139'
+      position:
+        x: 642
+        y: 278.00000000000006
+      positionAbsolute:
+        x: 642
+        y: 278.00000000000006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: contains
+            id: 5a900b70-2d0a-4e2f-82d0-5f1000f90dcb
+            value: A
+            varType: string
+            variable_selector:
+            - '1749172200501'
+            - marketType
+          id: 'true'
+          logical_operator: or
+        - case_id: 25d620ae-2213-47b1-93be-870176116b8f
+          conditions:
+          - comparison_operator: contains
+            id: 5542d6b4-e5f1-455e-bd63-031265172ca9
+            value: HK
+            varType: string
+            variable_selector:
+            - '1749172200501'
+            - marketType
+          id: 25d620ae-2213-47b1-93be-870176116b8f
+          logical_operator: and
+        - case_id: 1c1672cc-0675-47e5-ba1c-46aeb727b581
+          conditions:
+          - comparison_operator: contains
+            id: c050eac6-ff9a-45aa-9b2d-bb98564104b9
+            value: US
+            varType: string
+            variable_selector:
+            - '1749172200501'
+            - marketType
+          id: 1c1672cc-0675-47e5-ba1c-46aeb727b581
+          logical_operator: and
+        desc: ''
+        selected: false
+        title: 条件分支 2
+        type: if-else
+      height: 221
+      id: '1749177019596'
+      position:
+        x: 940
+        y: 278.00000000000006
+      positionAbsolute:
+        x: 940
+        y: 278.00000000000006
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: qwen3-235b-a22b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: cfaf8943-84e3-4850-8aba-978dc751bc0c
+          role: system
+          text: '分析A股{{#1749176594332.output#}}：
+
+            技术指标概要：
+
+            {{#1749176917139.technical_summary#}}
+
+            近14日交易数据：
+
+            {{#1749176917139.recent_data#}}
+
+
+            请提供：
+
+            1.趋势分析（包含支撑位和压力位）
+
+            2.成交量分析及其含义
+
+            3.风险评估（包含波动率分析）
+
+            4.短期和中期目标价位
+
+            5.关键技术位分析
+
+            6.具体交易建议（包含止损位）
+
+            请基于技术指标和A股市场特点进行分析，给出具体数据支
+
+            持。
+
+            7.根据{{#1749176917139.report#}}实时技术指标分析给出当前交易策略
+
+            '
+        selected: false
+        title: A股分析
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1749177149645'
+      position:
+        x: 1243
+        y: 189.59296997821616
+      positionAbsolute:
+        x: 1243
+        y: 189.59296997821616
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: qwen3-235b-a22b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: 5cb1a691-ca71-452a-a29d-bed38460ae0d
+          role: system
+          text: '分析HK股{{#1749176594332.output#}}：
+
+            技术指标概要：
+
+            {{#1749176917139.technical_summary#}}
+
+            近14日交易数据：
+
+            {{#1749176917139.recent_data#}}
+
+
+            请提供：
+
+            1.趋势分析（包含支撑位和压力位）
+
+            2.成交量分析及其含义
+
+            3.风险评估（包含波动率分析）
+
+            4.短期和中期目标价位
+
+            5.关键技术位分析
+
+            6.具体交易建议（包含止损位）
+
+            请基于技术指标和A股市场特点进行分析，给出具体数据支
+
+            持。
+
+            7.根据{{#1749176917139.report#}}实时技术指标分析给出当前交易策略
+
+            '
+        selected: false
+        title: 港股分析
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1749177151713'
+      position:
+        x: 1243
+        y: 313.63444624589755
+      positionAbsolute:
+        x: 1243
+        y: 313.63444624589755
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: qwen3-235b-a22b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: d6013d6d-89e0-4a0a-a9f8-b3eb3d67d978
+          role: system
+          text: '分析US股{{#1749176594332.output#}}：
+
+            技术指标概要：
+
+            {{#1749176917139.technical_summary#}}
+
+            近14日交易数据：
+
+            {{#1749176917139.recent_data#}}
+
+
+            请提供：
+
+            1.趋势分析（包含支撑位和压力位）
+
+            2.成交量分析及其含义
+
+            3.风险评估（包含波动率分析）
+
+            4.短期和中期目标价位
+
+            5.关键技术位分析
+
+            6.具体交易建议（包含止损位）
+
+            请基于技术指标和A股市场特点进行分析，给出具体数据支
+
+            持。
+
+            7.根据{{#1749176917139.report#}}实时技术指标分析给出当前交易策略
+
+            '
+        selected: false
+        title: 美股分析
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1749177154055'
+      position:
+        x: 1243
+        y: 440.31493833512457
+      positionAbsolute:
+        x: 1243
+        y: 440.31493833512457
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params: {}
+          mode: chat
+          name: qwen3-235b-a22b
+          provider: langgenius/tongyi/tongyi
+        prompt_template:
+        - id: a90d5f21-0d26-427f-a972-8a21fdb9eb95
+          role: system
+          text: '分析ETF股{{#1749176594332.output#}}：
+
+            技术指标概要：
+
+            {{#1749176917139.technical_summary#}}
+
+            近14日交易数据：
+
+            {{#1749176917139.recent_data#}}
+
+
+            请提供：
+
+            1.趋势分析（包含支撑位和压力位）
+
+            2.成交量分析及其含义
+
+            3.风险评估（包含波动率分析）
+
+            4.短期和中期目标价位
+
+            5.关键技术位分析
+
+            6.具体交易建议（包含止损位）
+
+            请基于技术指标和A股市场特点进行分析，给出具体数据支
+
+            持。
+
+            7.根据{{#1749176917139.report#}}实时技术指标分析给出当前交易策略
+
+            '
+        selected: false
+        title: 交易所交易基金分析
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 89
+      id: '1749177156539'
+      position:
+        x: 1243
+        y: 568.3149383351246
+      positionAbsolute:
+        x: 1243
+        y: 568.3149383351246
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1749176594332.output#}}
+
+          {{#1749177149645.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 2
+        type: answer
+        variables: []
+      height: 123
+      id: '1749177325682'
+      position:
+        x: 1546
+        y: 189.59296997821616
+      positionAbsolute:
+        x: 1546
+        y: 189.59296997821616
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1749177151713.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 3
+        type: answer
+        variables: []
+      height: 104
+      id: '1749177549359'
+      position:
+        x: 1546
+        y: 313.63444624589755
+      positionAbsolute:
+        x: 1546
+        y: 313.63444624589755
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1749177154055.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 4
+        type: answer
+        variables: []
+      height: 104
+      id: '1749177564902'
+      position:
+        x: 1546
+        y: 440.31493833512457
+      positionAbsolute:
+        x: 1546
+        y: 440.31493833512457
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        answer: '{{#1749177156539.text#}}'
+        desc: ''
+        selected: false
+        title: 直接回复 5
+        type: answer
+        variables: []
+      height: 104
+      id: '1749177606767'
+      position:
+        x: 1546
+        y: 568.3149383351246
+      positionAbsolute:
+        x: 1546
+        y: 568.3149383351246
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: -502.38242456360035
+      y: 147.29878859454408
+      zoom: 0.6597539553864475

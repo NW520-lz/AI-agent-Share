@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票分析API测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d5f4e6;
+            border: 1px solid #27ae60;
+            color: #27ae60;
+        }
+        .error {
+            background: #ffeaa7;
+            border: 1px solid #e17055;
+            color: #e17055;
+        }
+        .info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1976d2;
+        }
+        .loading {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+        input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 股票分析API测试工具</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. 健康检查</div>
+            <button onclick="testHealth()">测试健康检查</button>
+            <div id="health-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">2. 股票基本信息</div>
+            <input type="text" id="stock-code-info" value="600132" placeholder="股票代码">
+            <button onclick="testStockInfo()">获取股票信息</button>
+            <div id="stock-info-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">3. 市场状态</div>
+            <button onclick="testMarketStatus()">获取市场状态</button>
+            <div id="market-status-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">4. 综合股票分析 (⚠️ 可能需要1-2分钟)</div>
+            <input type="text" id="stock-code-analysis" value="600132" placeholder="股票代码">
+            <button onclick="testStockAnalysis()">开始分析</button>
+            <div id="analysis-result" class="result" style="display:none;"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Dify配置信息</div>
+            <div class="info result" style="display:block;">
+URL: http://10.7.139.26:8001/analyze-stock
+方法: POST
+Content-Type: application/json
+Authorization: Bearer xue1234
+超时: 120秒
+请求体: {
+  "stock_code": "{{#stock_code#}}",
+  "market_type": "A",
+  "period": "30"
+}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://10.7.139.26:8001';
+
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = content;
+            element.style.display = 'block';
+        }
+
+        function showLoading(elementId, message = '正在请求...') {
+            showResult(elementId, message, 'loading');
+        }
+
+        async function testHealth() {
+            const resultId = 'health-result';
+            showLoading(resultId, '正在检查API健康状态...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(resultId, `✅ 健康检查通过\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(resultId, `❌ 健康检查失败\n状态码: ${response.status}\n响应: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultId, `❌ 请求失败: ${error.message}\n\n可能的原因:\n1. API服务器未启动\n2. 网络连接问题\n3. CORS策略限制`, 'error');
+            }
+        }
+
+        async function testStockInfo() {
+            const resultId = 'stock-info-result';
+            const stockCode = document.getElementById('stock-code-info').value;
+            
+            if (!stockCode) {
+                showResult(resultId, '❌ 请输入股票代码', 'error');
+                return;
+            }
+            
+            showLoading(resultId, '正在获取股票基本信息...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/stock-info`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer xue1234',
+                    },
+                    body: JSON.stringify({
+                        stock_code: stockCode,
+                        market_type: 'A'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    const stockInfo = data.data.stock_info;
+                    showResult(resultId, `✅ 股票信息获取成功\n股票名称: ${stockInfo.name}\n股票代码: ${stockInfo.code}\n当前价格: ${stockInfo.current_price}\n涨跌幅: ${stockInfo.change_percent}%`, 'success');
+                } else {
+                    showResult(resultId, `❌ 获取失败\n错误信息: ${data.error || '未知错误'}\n完整响应: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultId, `❌ 请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testMarketStatus() {
+            const resultId = 'market-status-result';
+            showLoading(resultId, '正在获取市场状态...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/market-status`);
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    const marketStatus = data.data.market_status;
+                    showResult(resultId, `✅ 市场状态获取成功\n市场状态: ${marketStatus.market_status}\n当前时间: ${marketStatus.current_time}\n交易日: ${marketStatus.is_trading_day ? '是' : '否'}`, 'success');
+                } else {
+                    showResult(resultId, `❌ 获取失败\n错误信息: ${data.error || '未知错误'}\n完整响应: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(resultId, `❌ 请求失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStockAnalysis() {
+            const resultId = 'analysis-result';
+            const stockCode = document.getElementById('stock-code-analysis').value;
+            
+            if (!stockCode) {
+                showResult(resultId, '❌ 请输入股票代码', 'error');
+                return;
+            }
+            
+            showLoading(resultId, '⏳ 正在进行综合分析，请稍候...\n这可能需要1-2分钟时间');
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch(`${API_BASE}/analyze-stock`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer xue1234',
+                    },
+                    body: JSON.stringify({
+                        stock_code: stockCode,
+                        market_type: 'A',
+                        period: '30'
+                    })
+                });
+                
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    const analysisData = data.data;
+                    const stockInfo = analysisData.stock_info;
+                    const technical = analysisData.technical_summary;
+                    
+                    const result = `✅ 综合分析成功 (耗时: ${duration}秒)
+
+📊 股票信息:
+   名称: ${stockInfo.name}
+   代码: ${stockInfo.code}
+   当前价格: ${stockInfo.current_price}
+   涨跌幅: ${stockInfo.change_percent}%
+
+📈 技术分析:
+   趋势: ${technical.trend}
+   RSI: ${technical.rsi}
+   MA5: ${technical.ma5}
+   MA10: ${technical.ma10}
+   MA20: ${technical.ma20}
+   支撑位: ${technical.support_levels?.join(', ') || 'N/A'}
+   阻力位: ${technical.resistance_levels?.join(', ') || 'N/A'}
+
+🎯 这个响应格式可以直接在Dify中使用！`;
+                    
+                    showResult(resultId, result, 'success');
+                } else {
+                    showResult(resultId, `❌ 分析失败 (耗时: ${duration}秒)\n错误信息: ${data.error || '未知错误'}\n完整响应: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+                showResult(resultId, `❌ 请求失败 (耗时: ${duration}秒)\n错误: ${error.message}\n\n💡 提示: 如果是超时错误，请在Dify中设置更长的超时时间`, 'error');
+            }
+        }
+
+        // 页面加载时自动测试健康检查
+        window.onload = function() {
+            setTimeout(testHealth, 1000);
+        };
+    </script>
+</body>
+</html>

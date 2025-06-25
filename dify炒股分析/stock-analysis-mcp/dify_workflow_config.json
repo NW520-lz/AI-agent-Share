@@ -1,0 +1,185 @@
+{
+  "dify_workflow_template": {
+    "name": "股票分析工作流",
+    "description": "使用本地API进行股票技术分析",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start",
+        "name": "开始",
+        "data": {
+          "inputs": [
+            {
+              "variable": "stock_code",
+              "type": "text",
+              "required": true,
+              "label": "股票代码",
+              "description": "请输入6位股票代码，如600132"
+            }
+          ]
+        }
+      },
+      {
+        "id": "variable_aggregator",
+        "type": "variable-aggregator", 
+        "name": "变量聚合器",
+        "data": {
+          "variables": [
+            {
+              "variable": "stock_code",
+              "value_selector": ["start", "stock_code"]
+            }
+          ],
+          "output": {
+            "variable": "processed_stock_code",
+            "type": "string"
+          }
+        }
+      },
+      {
+        "id": "http_request",
+        "type": "http-request",
+        "name": "股票分析API",
+        "data": {
+          "method": "POST",
+          "url": "http://localhost:8003/analyze-stock",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "stock_code": "{{#variable_aggregator.processed_stock_code#}}",
+            "market_type": "A",
+            "period": "30"
+          },
+          "timeout": 120,
+          "max_retries": 2
+        }
+      },
+      {
+        "id": "condition",
+        "type": "if-else",
+        "name": "结果判断",
+        "data": {
+          "conditions": [
+            {
+              "id": "success",
+              "logical_operator": "and",
+              "conditions": [
+                {
+                  "variable_selector": ["http_request", "body", "status"],
+                  "comparison_operator": "is",
+                  "value": "success"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "code_success",
+        "type": "code",
+        "name": "格式化分析结果",
+        "data": {
+          "code_language": "python3",
+          "code": "def main(http_response: dict) -> dict:\n    \"\"\"格式化股票分析结果\"\"\"\n    \n    data = http_response.get('data', {})\n    stock_info = data.get('stock_info', {})\n    technical = data.get('technical_summary', {})\n    \n    # 格式化分析报告\n    report = f\"\"\"📊 股票分析报告 - {stock_info.get('name', 'N/A')} ({stock_info.get('code', 'N/A')})\n\n💰 当前价格: {stock_info.get('current_price', 'N/A')} 元\n📈 涨跌幅: {stock_info.get('change_percent', 'N/A')}%\n\n📊 趋势分析: {technical.get('trend', 'N/A')}\n\n📈 移动平均线:\n   MA5:  {technical.get('ma5', 'N/A')} 元\n   MA10: {technical.get('ma10', 'N/A')} 元\n   MA20: {technical.get('ma20', 'N/A')} 元\n\n🎯 技术指标:\n   RSI: {technical.get('rsi', 'N/A')}\n\n🎯 关键位置:\n   支撑位: {', '.join(map(str, technical.get('support_levels', [])))}\n   阻力位: {', '.join(map(str, technical.get('resistance_levels', [])))}\n\n⚠️ 以上分析仅供参考，投资有风险！\"\"\"\n    \n    return {\n        'analysis_result': report,\n        'stock_name': stock_info.get('name', 'N/A'),\n        'current_price': stock_info.get('current_price', 'N/A'),\n        'trend': technical.get('trend', 'N/A'),\n        'rsi': technical.get('rsi', 'N/A')\n    }",
+          "inputs": {
+            "http_response": "{{#http_request.body#}}"
+          },
+          "outputs": [
+            "analysis_result",
+            "stock_name", 
+            "current_price",
+            "trend",
+            "rsi"
+          ]
+        }
+      },
+      {
+        "id": "code_error",
+        "type": "code",
+        "name": "处理错误",
+        "data": {
+          "code_language": "python3",
+          "code": "def main(http_response: dict) -> dict:\n    \"\"\"处理API错误响应\"\"\"\n    \n    error_msg = http_response.get('error', '未知错误')\n    \n    return {\n        'analysis_result': f'❌ 股票分析失败: {error_msg}\\n\\n💡 请检查:\\n- 股票代码是否正确（6位数字）\\n- API服务是否正常运行\\n- 网络连接是否正常',\n        'error': error_msg\n    }",
+          "inputs": {
+            "http_response": "{{#http_request.body#}}"
+          },
+          "outputs": [
+            "analysis_result",
+            "error"
+          ]
+        }
+      },
+      {
+        "id": "end",
+        "type": "end",
+        "name": "结束",
+        "data": {
+          "outputs": [
+            {
+              "variable": "analysis_result",
+              "type": "text"
+            }
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "variable_aggregator"
+      },
+      {
+        "source": "variable_aggregator", 
+        "target": "http_request"
+      },
+      {
+        "source": "http_request",
+        "target": "condition"
+      },
+      {
+        "source": "condition",
+        "target": "code_success",
+        "condition": "success"
+      },
+      {
+        "source": "condition",
+        "target": "code_error",
+        "condition": "else"
+      },
+      {
+        "source": "code_success",
+        "target": "end"
+      },
+      {
+        "source": "code_error", 
+        "target": "end"
+      }
+    ]
+  },
+  
+  "configuration_notes": {
+    "api_server": {
+      "url": "http://localhost:8003",
+      "startup_command": "python -m uvicorn api_server:app --host 0.0.0.0 --port 8003",
+      "health_check": "http://localhost:8003/health"
+    },
+    "http_request_settings": {
+      "timeout": "120秒（重要：股票数据获取需要时间）",
+      "retries": "2次",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "supported_stock_codes": [
+      "600132 (重庆啤酒)",
+      "000001 (平安银行)", 
+      "600000 (浦发银行)",
+      "300001 (特锐德)"
+    ],
+    "docker_configuration": {
+      "note": "如果Dify运行在Docker中，请将URL改为",
+      "url": "http://host.docker.internal:8003/analyze-stock"
+    }
+  }
+}

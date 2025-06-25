@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票分析API测试工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .api-section {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .api-section:last-child {
+            border-bottom: none;
+        }
+
+        .api-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .api-title .method {
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .method.post { background: #e74c3c; }
+        .method.get { background: #27ae60; }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.success { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); }
+        .btn.warning { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); }
+
+        .response-area {
+            margin-top: 20px;
+        }
+
+        .response-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #3498db;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success { background: #27ae60; }
+        .status-error { background: #e74c3c; }
+        .status-warning { background: #f39c12; }
+
+        .example-codes {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .example-codes h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .code-examples {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .code-btn {
+            background: #95a5a6;
+            color: white;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .code-btn:hover {
+            background: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 股票分析API测试工具</h1>
+            <p>测试股票分析系统的所有API接口</p>
+        </div>
+
+        <!-- 股票分析接口 -->
+        <div class="api-section">
+            <h2 class="api-title">
+                <span class="method post">POST</span>
+                股票分析接口
+            </h2>
+            
+            <div class="example-codes">
+                <h4>📝 常用股票代码示例：</h4>
+                <div class="code-examples">
+                    <button class="code-btn" onclick="setStockCode('600312', 'A')">平高电气 (600312)</button>
+                    <button class="code-btn" onclick="setStockCode('000001', 'A')">平安银行 (000001)</button>
+                    <button class="code-btn" onclick="setStockCode('000333', 'A')">美的集团 (000333)</button>
+                    <button class="code-btn" onclick="setStockCode('600036', 'A')">招商银行 (600036)</button>
+                    <button class="code-btn" onclick="setStockCode('000858', 'A')">五粮液 (000858)</button>
+                </div>
+            </div>
+
+            <form id="stockAnalysisForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stockCode">股票代码:</label>
+                        <input type="text" id="stockCode" placeholder="例如: 600312" value="600312">
+                    </div>
+                    <div class="form-group">
+                        <label for="marketType">市场类型:</label>
+                        <select id="marketType">
+                            <option value="A">A股</option>
+                            <option value="HK">港股</option>
+                            <option value="US">美股</option>
+                            <option value="ETF">ETF基金</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="period">分析周期(天):</label>
+                        <input type="number" id="period" placeholder="例如: 30" value="30" min="1" max="365">
+                    </div>
+                </div>
+                <button type="button" class="btn" onclick="analyzeStock()">🔍 分析股票</button>
+                <button type="button" class="btn warning" onclick="clearResponse('stockResponse')">🗑️ 清空结果</button>
+            </form>
+
+            <div class="response-area">
+                <div class="loading" id="stockLoading">
+                    <div class="spinner"></div>
+                    <div>正在分析股票数据...</div>
+                </div>
+                <div class="response-box" id="stockResponse">点击"分析股票"按钮开始测试...</div>
+            </div>
+        </div>
+
+        <!-- 市场概览接口 -->
+        <div class="api-section">
+            <h2 class="api-title">
+                <span class="method get">GET</span>
+                市场概览接口
+            </h2>
+            
+            <form id="marketOverviewForm">
+                <div class="form-group">
+                    <label for="overviewMarketType">市场类型:</label>
+                    <select id="overviewMarketType">
+                        <option value="A">A股市场</option>
+                        <option value="HK">港股市场</option>
+                        <option value="US">美股市场</option>
+                        <option value="ETF">ETF市场</option>
+                    </select>
+                </div>
+                <button type="button" class="btn success" onclick="getMarketOverview()">📊 获取市场概览</button>
+                <button type="button" class="btn warning" onclick="clearResponse('marketResponse')">🗑️ 清空结果</button>
+            </form>
+
+            <div class="response-area">
+                <div class="loading" id="marketLoading">
+                    <div class="spinner"></div>
+                    <div>正在获取市场概览...</div>
+                </div>
+                <div class="response-box" id="marketResponse">点击"获取市场概览"按钮开始测试...</div>
+            </div>
+        </div>
+
+        <!-- 健康检查接口 -->
+        <div class="api-section">
+            <h2 class="api-title">
+                <span class="method get">GET</span>
+                健康检查接口
+            </h2>
+            
+            <button type="button" class="btn success" onclick="checkHealth()">❤️ 检查系统健康状态</button>
+            <button type="button" class="btn warning" onclick="clearResponse('healthResponse')">🗑️ 清空结果</button>
+
+            <div class="response-area">
+                <div class="loading" id="healthLoading">
+                    <div class="spinner"></div>
+                    <div>正在检查系统状态...</div>
+                </div>
+                <div class="response-box" id="healthResponse">点击"检查系统健康状态"按钮开始测试...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://10.7.139.26:8001';
+        const API_KEY = 'xue1234';
+
+        // 设置股票代码的便捷函数
+        function setStockCode(code, market) {
+            document.getElementById('stockCode').value = code;
+            document.getElementById('marketType').value = market;
+        }
+
+        // 显示加载状态
+        function showLoading(loadingId) {
+            document.getElementById(loadingId).style.display = 'block';
+        }
+
+        // 隐藏加载状态
+        function hideLoading(loadingId) {
+            document.getElementById(loadingId).style.display = 'none';
+        }
+
+        // 清空响应内容
+        function clearResponse(responseId) {
+            document.getElementById(responseId).textContent = '已清空...';
+        }
+
+        // 格式化JSON显示
+        function formatResponse(data, status, url, method) {
+            const timestamp = new Date().toLocaleString();
+            const statusIcon = status >= 200 && status < 300 ? '✅' : '❌';
+            
+            return `${statusIcon} ${method} ${url}
+状态码: ${status}
+时间: ${timestamp}
+响应数据:
+${JSON.stringify(data, null, 2)}`;
+        }
+
+        // 股票分析接口测试
+        async function analyzeStock() {
+            const stockCode = document.getElementById('stockCode').value.trim();
+            const marketType = document.getElementById('marketType').value;
+            const period = parseInt(document.getElementById('period').value) || 30;
+
+            if (!stockCode) {
+                alert('请输入股票代码！');
+                return;
+            }
+
+            showLoading('stockLoading');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/analyze-stock`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        stock_code: stockCode,
+                        market_type: marketType,
+                        period: period
+                    })
+                });
+
+                const data = await response.json();
+                document.getElementById('stockResponse').textContent = 
+                    formatResponse(data, response.status, '/analyze-stock', 'POST');
+                
+            } catch (error) {
+                document.getElementById('stockResponse').textContent = 
+                    `❌ 请求失败: ${error.message}`;
+            } finally {
+                hideLoading('stockLoading');
+            }
+        }
+
+        // 市场概览接口测试
+        async function getMarketOverview() {
+            const marketType = document.getElementById('overviewMarketType').value;
+            
+            showLoading('marketLoading');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/market-overview?market_type=${marketType}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${API_KEY}`
+                    }
+                });
+
+                const data = await response.json();
+                document.getElementById('marketResponse').textContent = 
+                    formatResponse(data, response.status, '/market-overview', 'GET');
+                
+            } catch (error) {
+                document.getElementById('marketResponse').textContent = 
+                    `❌ 请求失败: ${error.message}`;
+            } finally {
+                hideLoading('marketLoading');
+            }
+        }
+
+        // 健康检查接口测试
+        async function checkHealth() {
+            showLoading('healthLoading');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET'
+                });
+
+                const data = await response.json();
+                document.getElementById('healthResponse').textContent = 
+                    formatResponse(data, response.status, '/health', 'GET');
+                
+            } catch (error) {
+                document.getElementById('healthResponse').textContent = 
+                    `❌ 请求失败: ${error.message}`;
+            } finally {
+                hideLoading('healthLoading');
+            }
+        }
+
+        // 页面加载完成后自动检查健康状态
+        window.addEventListener('load', function() {
+            setTimeout(checkHealth, 1000);
+        });
+    </script>
+</body>
+</html>
